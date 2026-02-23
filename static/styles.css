@@ -255,6 +255,22 @@ main {
   color: var(--error-text);
 }
 
+/* Database error bar (constraints, triggers) — for presentation */
+.msg.db_error {
+  background: #fff8f0;
+  color: #b45309;
+  border: 1px solid rgba(180, 83, 9, 0.3);
+  font-family: ui-monospace, monospace;
+  font-size: 0.8125rem;
+  word-break: break-word;
+}
+
+.msg.db_error .msg-label {
+  font-weight: 600;
+  font-family: var(--font-sans);
+  margin-right: 0.35rem;
+}
+
 /* Table — minimal, no heavy header */
 .tablewrap {
   overflow-x: auto;

@@ -23,6 +23,16 @@ logger = logging.getLogger(__name__)
 # User-facing message for any unexpected error (no DB/query details)
 GENERIC_ERROR_MSG = "An error occurred. Please try again or check your input."
 
+# Flash category for errors that come from the database (constraints, triggers, etc.)
+DB_ERROR_CATEGORY = "db_error"
+
+
+def _db_error_message(exc: Exception) -> str:
+    """Extract a user-visible message from a DB exception for the presentation bar."""
+    msg = str(exc)
+    # MySQL connector often puts the message in a standard format; use as-is so constraints/triggers show
+    return msg if msg else repr(exc)
+
 
 def _serialize_for_session(obj):
     """Convert dict/list values so session is JSON-serializable (e.g. datetime, Decimal)."""
@@ -144,7 +154,7 @@ def create_app() -> Flask:
             return render_template("index.html", **ctx)
         except Exception as e:
             logger.exception("Feature 1 failed")
-            flash(GENERIC_ERROR_MSG, "error")
+            flash(_db_error_message(e), DB_ERROR_CATEGORY)
             return redirect(url_for("index", zone_type=zone_type))
 
     @app.post("/feature2")
@@ -172,7 +182,7 @@ def create_app() -> Flask:
             })
         except Exception as e:
             logger.exception("Feature 2 failed")
-            flash(GENERIC_ERROR_MSG, "error")
+            flash(_db_error_message(e), DB_ERROR_CATEGORY)
 
         return redirect(url_for("index"))
 
@@ -200,10 +210,7 @@ def create_app() -> Flask:
             })
         except Exception as e:
             logger.exception("Feature 3 failed")
-            flash(
-                str(e) if app.debug else GENERIC_ERROR_MSG,
-                "error",
-            )
+            flash(_db_error_message(e), DB_ERROR_CATEGORY)
 
         return redirect(url_for("index"))
 
